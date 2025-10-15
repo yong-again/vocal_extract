@@ -352,4 +352,4 @@ output/
 
 ⭐ 이 프로젝트가 유용하다면 Star를 눌러주세요!
 
-Made with ❤️ by [yong-again]
+Made with ❤️ by yong-again
