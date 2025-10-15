@@ -250,4 +250,4 @@ credentials.json
 # jupyter notebooks
 *.ipynb
 .ipynb_checkpoints/
-./notebooks/
+notebooks/
