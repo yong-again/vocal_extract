@@ -246,3 +246,8 @@ credentials.json
 # 캐시
 .cache/
 *.cache
+
+# jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+./notebooks/
