@@ -140,14 +140,14 @@ output/
 temp/
 tmp/
 
+# 로그 파일
+logs/
+*.log
+
 # Demucs 모델 캐시
 .demucs/
 models/
 pretrained_models/
-
-# 로그 파일
-*.log
-logs/
 
 
 # ==================== IDE / 에디터 ====================

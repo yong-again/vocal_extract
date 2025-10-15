@@ -3,13 +3,13 @@
 """
 from pathlib import Path
 
-
 class Config:
     """애플리케이션 설정 클래스"""
 
     # 디렉토리 설정
     OUTPUT_DIR = Path("./output")
     TEMP_DIR = Path("./temp")
+    LOG_DIR = Path("./logs")
 
     # Demucs 모델 설정
     DEMUCS_MODEL = 'htdemucs'  # htdemucs, htdemucs_ft, htdemucs_6s
@@ -27,5 +27,4 @@ class Config:
         """필요한 디렉토리 생성"""
         cls.OUTPUT_DIR.mkdir(exist_ok=True)
         cls.TEMP_DIR.mkdir(exist_ok=True)
-        print(f"✓ 출력 폴더: {cls.OUTPUT_DIR}")
-        print(f"✓ 임시 폴더: {cls.TEMP_DIR}")
+        cls.LOG_DIR.mkdir(exist_ok=True)

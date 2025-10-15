@@ -7,6 +7,9 @@ from pydub import AudioSegment
 import numpy as np
 from scipy.io import wavfile
 import torch
+from logger import get_logger
+
+logger = get_logger('utils')
 
 
 def clean_filename(filename: str) -> str:
@@ -19,7 +22,9 @@ def clean_filename(filename: str) -> str:
     Returns:
         특수문자가 제거된 파일명
     """
-    return "".join(c for c in filename if c.isalnum() or c in (' ', '-', '_')).strip()
+    cleaned = "".join(c for c in filename if c.isalnum() or c in (' ', '-', '_')).strip()
+    logger.debug(f"파일명 정리: {filename} -> {cleaned}")
+    return cleaned
 
 
 def cleanup_temp_files(temp_file: str) -> None:
@@ -32,9 +37,9 @@ def cleanup_temp_files(temp_file: str) -> None:
     try:
         if os.path.exists(temp_file):
             os.remove(temp_file)
-            print(f"✓ 임시 파일 삭제: {Path(temp_file).name}")
+            logger.info(f"임시 파일 삭제: {Path(temp_file).name}")
     except Exception as e:
-        print(f"⚠ 정리 중 오류: {e}")
+        logger.warning(f"정리 중 오류: {e}")
 
 
 def convert_to_wav(input_file: str, output_file: str) -> str:
@@ -49,16 +54,19 @@ def convert_to_wav(input_file: str, output_file: str) -> str:
         변환된 WAV 파일 경로
     """
     try:
-        print(f"   파일 변환 중: {Path(input_file).suffix} → .wav")
+        logger.info(f"파일 변환 중: {Path(input_file).suffix} → .wav")
         audio = AudioSegment.from_file(input_file)
         audio.export(output_file, format="wav")
 
         # 원본 파일 삭제
         if os.path.exists(input_file):
             os.remove(input_file)
+            logger.debug(f"원본 파일 삭제: {input_file}")
 
+        logger.info(f"변환 완료: {output_file}")
         return output_file
     except Exception as e:
+        logger.error(f"오디오 변환 실패: {str(e)}", exc_info=True)
         raise Exception(f"오디오 변환 실패: {str(e)}")
 
 
@@ -73,12 +81,13 @@ def load_audio_with_pydub(audio_file: str) -> tuple:
         tuple: (오디오 텐서, 샘플레이트)
     """
     try:
+        logger.info(f"오디오 로드 중: {audio_file}")
         audio = AudioSegment.from_wav(audio_file)
         sr = audio.frame_rate
 
         # numpy 배열로 변환
         samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
-        samples = samples / (2 ** 15)  # 정규화
+        samples = samples / (2**15)  # 정규화
 
         # 스테레오 처리
         if audio.channels == 2:
@@ -88,8 +97,10 @@ def load_audio_with_pydub(audio_file: str) -> tuple:
 
         # torch tensor로 변환
         wav = torch.from_numpy(samples)
+        logger.info(f"오디오 로드 완료: shape={wav.shape}, sr={sr}")
         return wav, sr
     except Exception as e:
+        logger.error(f"오디오 로드 실패: {str(e)}", exc_info=True)
         raise Exception(f"오디오 로드 실패: {str(e)}")
 
 
@@ -103,6 +114,8 @@ def save_audio_scipy(audio_tensor: torch.Tensor, sample_rate: int, output_path: 
         output_path: 출력 파일 경로
     """
     try:
+        logger.debug(f"오디오 저장 중: {output_path}")
+
         # CPU로 이동 및 numpy 변환
         audio_np = audio_tensor.cpu().numpy()
 
@@ -118,5 +131,7 @@ def save_audio_scipy(audio_tensor: torch.Tensor, sample_rate: int, output_path: 
 
         # wav 파일로 저장
         wavfile.write(str(output_path), sample_rate, audio_np)
+        logger.debug(f"저장 완료: {output_path}")
     except Exception as e:
+        logger.error(f"오디오 저장 실패: {str(e)}", exc_info=True)
         raise Exception(f"오디오 저장 실패: {str(e)}")
